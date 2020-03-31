@@ -13,7 +13,7 @@
 #include <linux/mm.h>
 #include <linux/mman.h>
 #include <linux/mmzone.h>
-#include <linux/quicklist.h>
+//#include <linux/quicklist.h>
 #include <linux/swap.h>
 #include <linux/vmstat.h>
 #include <linux/atomic.h>
