@@ -13,21 +13,21 @@
 #include <linux/sched.h>
 
 #define PROCFS_NAME "cpu_201222626"
-#define EJECUCION "\tEjecutandose\n"
-#define DURMIENDO "\tDurmiendo\n"
-#define PARADO "\tParado\n"
-#define MUERTO "\tMuerto\n"
-#define OTRO "\tOtro\n"
-#define ZOMBI "\tZombie\n"
-#define IDLE "\tIdle\n"
+#define EJECUCION "\tEjecutandose"
+#define DURMIENDO "\tDurmiendo"
+#define PARADO "\tParado"
+#define MUERTO "\tMuerto"
+#define OTRO "\tOtro"
+#define ZOMBI "\tZombie"
+#define IDLE "\tIdle"
 static void estado(struct seq_file *m, u32 est);
 
 static int cpumod_show(struct seq_file *m, void *v){
-  seq_printf(m, "Carné: 201222626\n");
-  seq_printf(m, "Nombre: Byron Jose Lopez Herrera\n");
-  seq_printf(m, "Sistema Operativo: %s %s %s\n",
-             utsname()->sysname, utsname()->release, utsname()->version);
-  seq_printf(m, "PID\tNombre\tEstado\n");
+  //seq_printf(m, "Carné: 201222626\n");
+  //seq_printf(m, "Nombre: Byron Jose Lopez Herrera\n");
+  //seq_printf(m, "Sistema Operativo: %s %s %s\n",
+  //           utsname()->sysname, utsname()->release, utsname()->version);
+  seq_printf(m, "PID\tNombre\tEstado\tUid\n");
 
   struct task_struct *task;
   rcu_read_lock();
@@ -36,6 +36,7 @@ static int cpumod_show(struct seq_file *m, void *v){
     task_lock(task);
     seq_printf(m, "%i\t%s", task->pid, task->comm);
     estado (m, task->state);
+    seq_printf(m, "\t%s\n", task->cred->uid);
     task_unlock(task);
   }
   rcu_read_unlock();

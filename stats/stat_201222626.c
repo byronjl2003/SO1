@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 #include <linux/module.h>
 #include <linux/cpumask.h>
 #include <linux/fs.h>
@@ -10,7 +11,7 @@
 #include <linux/slab.h>
 #include <linux/time.h>
 #include <linux/irqnr.h>
-#include <linux/cputime.h>
+#include <linux/sched/cputime.h>
 #include <linux/tick.h>
 
 #ifndef arch_irq_stat_cpu
@@ -55,7 +56,7 @@ static u64 get_idle_time(int cpu)
 		/* !NO_HZ or cpu offline so we can rely on cpustat.idle */
 		idle = kcpustat_cpu(cpu).cpustat[CPUTIME_IDLE];
 	else
-		idle = usecs_to_cputime64(idle_time);
+		idle = idle_time * NSEC_PER_USEC;;
 
 	return idle;
 }
@@ -71,7 +72,7 @@ static u64 get_iowait_time(int cpu)
 		/* !NO_HZ or cpu offline so we can rely on cpustat.iowait */
 		iowait = kcpustat_cpu(cpu).cpustat[CPUTIME_IOWAIT];
 	else
-		iowait = usecs_to_cputime64(iowait_time);
+		iowait = iowait_time * NSEC_PER_USEC;
 
 	return iowait;
 }
@@ -116,16 +117,16 @@ static int show_stat(struct seq_file *p, void *v)
 	}
 	sum += arch_irq_stat();
 
-	seq_put_decimal_ull(p, "cpu  ", cputime64_to_clock_t(user));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(nice));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(system));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(idle));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(iowait));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(irq));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(softirq));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(steal));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(guest));
-	seq_put_decimal_ull(p, " ", cputime64_to_clock_t(guest_nice));
+	seq_put_decimal_ull(p, "cpu  ", nsec_to_clock_t(user));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(nice));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(system));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(idle));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(iowait));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(irq));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(softirq));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(steal));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(guest));
+	seq_put_decimal_ull(p, " ", nsec_to_clock_t(guest_nice));
 	seq_putc(p, '\n');
 
 	for_each_online_cpu(i) {
@@ -141,16 +142,16 @@ static int show_stat(struct seq_file *p, void *v)
 		guest = kcpustat_cpu(i).cpustat[CPUTIME_GUEST];
 		guest_nice = kcpustat_cpu(i).cpustat[CPUTIME_GUEST_NICE];
 		seq_printf(p, "cpu%d", i);
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(user));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(nice));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(system));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(idle));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(iowait));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(irq));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(softirq));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(steal));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(guest));
-		seq_put_decimal_ull(p, " ", cputime64_to_clock_t(guest_nice));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(user));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(nice));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(system));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(idle));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(iowait));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(irq));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(softirq));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(steal));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(guest));
+		seq_put_decimal_ull(p, " ", nsec_to_clock_t(guest_nice));
 		seq_putc(p, '\n');
 	}
 	seq_put_decimal_ull(p, "intr ", (unsigned long long)sum);
@@ -158,7 +159,7 @@ static int show_stat(struct seq_file *p, void *v)
 	/* sum again ? it could be updated? */
 	for_each_irq_nr(j)
 		seq_put_decimal_ull(p, " ", kstat_irqs_usr(j));
-
+/*
 	seq_printf(p,
 		"\nctxt %llu\n"
 		"btime %llu\n"
@@ -170,7 +171,7 @@ static int show_stat(struct seq_file *p, void *v)
 		total_forks,
 		nr_running(),
 		nr_iowait());
-
+*/
 	seq_put_decimal_ull(p, "softirq ", (unsigned long long)sum_softirq);
 
 	for (i = 0; i < NR_SOFTIRQS; i++)
@@ -198,7 +199,17 @@ static const struct file_operations proc_stat_operations = {
 
 static int __init proc_stat_init(void)
 {
-	proc_create("stat", 0, NULL, &proc_stat_operations);
+	proc_create("stat_201222626", 0, NULL, &proc_stat_operations);
 	return 0;
 }
-fs_initcall(proc_stat_init);
+static void __exit proc_stat_exit(void){
+  remove_proc_entry("stat_201222626", NULL);
+	//printk(KERN_INFO "Sistemas Operativos 1\n");
+  //printk(KERN_INFO "Modulo deshabilidato\n");
+}
+module_init(proc_stat_init);
+module_exit(proc_stat_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("dragonsor");
+MODULE_DESCRIPTION("Modulo realizado como practica dos de sistemas operativos1");

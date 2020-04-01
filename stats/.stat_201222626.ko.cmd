@@ -1,0 +1,1 @@
+cmd_/home/bj/SO1/stats/stat_201222626.ko := ld -r -m elf_x86_64 -z max-page-size=0x200000 -T ./scripts/module-common.lds --build-id  -o /home/bj/SO1/stats/stat_201222626.ko /home/bj/SO1/stats/stat_201222626.o /home/bj/SO1/stats/stat_201222626.mod.o ;  true
